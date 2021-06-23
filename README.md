@@ -1,6 +1,6 @@
 # Feature Aligment
 
-This code provides de results for the paper..
+The code will be provided as soon as the arXiv paper is up.
 
 Each folder has the same files, but each shaped for different data sets.
 The file *training.py* contains the main code which should be executed. 
