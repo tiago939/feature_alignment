@@ -11,6 +11,6 @@ The file *memory.py* trains a neural network locally as discussed in the paper.
 --------------
 The code was tested on the framework PyTorch version 1.9.
 
-Please let me know if you see mistakes.
+Please let me know if you see any mistake.
 
 MIT LICENCE
