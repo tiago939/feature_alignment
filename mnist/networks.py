@@ -12,6 +12,10 @@ class unFlatten2(torch.nn.Module):
         batch_size = x.shape[0]
         return x.view(batch_size, 1, 28, 28)
 
+class asinh(torch.nn.Module):
+    def forward(self, x):
+        return torch.asinh(x)
+
 class Encoder(nn.Module):
 
     def __init__(self,Z):
@@ -115,18 +119,18 @@ class Memory(nn.Module):
 
         self.encoder = nn.Sequential(
             nn.Conv2d(1, 32, kernel_size=3, stride=1, padding=1),
-            nn.Tanh(),
+            asinh(),
             nn.Conv2d(32, 32, kernel_size=3, stride=2, padding=1),
-            nn.Tanh(),
+            asinh(),
 
             nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),
-            nn.Tanh(),
+            asinh(),
             nn.Conv2d(64, 64, kernel_size=3, stride=2, padding=1),
-            nn.Tanh(),
+            asinh(),
 
             Flatten(),
             nn.Linear(3136,4096),
-            nn.Tanh(),
+            asinh(),
             nn.Linear(4096,Z)
             )
 

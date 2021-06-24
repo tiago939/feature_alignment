@@ -100,20 +100,20 @@ for epoch in range(epochs):
         z = mean + std*eps
 
         #extract feature
-        u = torch.zeros(inputs.shape, device=device)
-        u.requires_grad_(True)
+        r = torch.zeros(inputs.shape, device=device)
+        r.requires_grad_(True)
         for _ in range(T):
-            out = encoder(u,1)
+            out = encoder(r,1)
             meanf = encoder(out,3)
             log_variancef = encoder(out,4)
             stdf = torch.exp(0.5*log_variancef)
             Cf = encoder(out,2)
             zf = meanf + stdf
             cost = 0.5*torch.sum( (z - zf)**2.0) + 0.5*torch.sum( (labels-Cf)**2.0)
-            u = u - torch.autograd.grad(cost, u, retain_graph=True, create_graph=True)[0]
-        u = torch.sigmoid(u)
+            r= r - torch.autograd.grad(cost, r, retain_graph=True, create_graph=True)[0]
+        r = torch.sigmoid(r)
 
-        RL = 0.5*torch.sum( (inputs-u)**2.0) #align feaute and inputs
+        RL = 0.5*torch.sum( (inputs-r)**2.0) #align feaute and inputs
         KLD = -0.5*torch.sum( 1.0 + log_variance - mean**2.0 - torch.exp(log_variance), axis=1)
         beta = torch.rand(KLD.shape, device=device)
 
@@ -122,7 +122,7 @@ for epoch in range(epochs):
         loss.backward()
         optimizer.step()
 
-        g = generator(u.detach(), labels)
+        g = generator(r.detach(), labels)
         D = discriminator(g)
         loss = 0.5*torch.sum( (1.0-D)**2.0)
         optimizer_gen.zero_grad()
@@ -136,18 +136,18 @@ for epoch in range(epochs):
         optimizer_discr.step()
 
         z = torch.empty(z.shape, device=device).normal_(mean=0.0,std=1.0)
-        u = torch.zeros(inputs.shape, device=device)
-        u.requires_grad_(True)
-        out = encoder(u,1)
+        r = torch.zeros(inputs.shape, device=device)
+        r.requires_grad_(True)
+        out = encoder(r,1)
         meanf = encoder(out,3)
         log_variancef = encoder(out,4)
         stdf = torch.exp(0.5*log_variancef)
         Cf = encoder(out,2)
         zf = meanf + stdf
         cost = 0.5*torch.sum( (z - zf)**2.0) + 0.5*torch.sum( (labels-Cf)**2.0)
-        u = u - torch.autograd.grad(cost, u, retain_graph=True, create_graph=True)[0]
-        u = torch.sigmoid(u)
-        g = generator(u,labels)
+        r = r - torch.autograd.grad(cost, r, retain_graph=True, create_graph=True)[0]
+        r = torch.sigmoid(r)
+        g = generator(r,labels)
 
         D_fake = discriminator(g.detach())
         loss = 0.5*torch.sum( (-1.0-D_fake)**2.0)
