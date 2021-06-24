@@ -24,6 +24,7 @@ batch_size = 128
 Z = 128 #latent vector size
 epochs = 1 #number of epochs
 T = 1 #number of feature iterations
+P = 0.0 #weight of the perceptual loss
 
 # Data
 print('==> Preparing data..')
@@ -123,8 +124,18 @@ for epoch in range(epochs):
         optimizer.step()
 
         g = generator(r.detach(), labels)
+        output_g = encoder(g, 1)
+        mean_g = encoder(output_g, 3)
+        log_variance_g = encoder(output_g, 4)
+        std_g = torch.exp(0.5*log_variance_g)
+
+        output = encoder(inputs,1)
+        mean = encoder(output,3)
+        log_variance = encoder(output,4)
+        std = torch.exp(0.5*log_variance)
+
         D = discriminator(g)
-        loss = 0.5*torch.sum( (1.0-D)**2.0)
+        loss = 0.5*torch.sum( (1.0-D)**2.0) + P*(0.5*torch.sum( (mean-mean_g)**2.0) + 0.5*torch.sum( (std - std_g)**2.0))
         optimizer_gen.zero_grad()
         loss.backward()
         optimizer_gen.step()
