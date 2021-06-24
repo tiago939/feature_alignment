@@ -22,16 +22,13 @@ trainloader = torch.utils.data.DataLoader(
     trainset, batch_size=batch_size, shuffle=False, num_workers=1)
 
 
-model = networks.Encoder(Z).to(device)
-generator = networks.Generator().to(device)
-checkpoint = torch.load('./checkpoint_fa/ckpt.pth')
-model.load_state_dict(checkpoint['encoder_state_dict'])
-generator.load_state_dict(checkpoint['generator_state_dict'])
+model = networks.Memory(Z).to(device)
+checkpoint = torch.load('./checkpoint_memory/ckpt.pth')
+model.load_state_dict(checkpoint['model_state_dict'])
 
 model.eval()
-generator.eval()
-
 L = len(model.encoder)
+layers=[1,3,5,7,10] #layers with arsinh function
 for batch_idx, (inputs,targets) in enumerate(trainloader):
 
     if batch_idx > 0:
@@ -53,7 +50,6 @@ for batch_idx, (inputs,targets) in enumerate(trainloader):
         cost = 0.5*torch.sum( (x - fu)**2.0)
         u = u - torch.autograd.grad(cost, u, retain_graph=True, create_graph=True)[0]
 
-        layers=[1,3,5,7,10] #layers with arsinh function
         if layer in layers:
             u = torch.sinh(u)
 
